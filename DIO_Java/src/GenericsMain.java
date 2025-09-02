@@ -7,7 +7,7 @@ import domain.UserDomain;
 ** Generics
  */
 
-public class Main {
+public class GenericsMain {
     private final static GenericDAO<Integer, UserDomain> dao = new UserDAO();
     private final static GenericDAO<String, ClientDomain> clientDao = new ClientDAO();
 
