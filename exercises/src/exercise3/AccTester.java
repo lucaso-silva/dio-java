@@ -3,7 +3,8 @@ package exercise3;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class AccTester {
+public class
+AccTester {
     public static void main(String[] args) {
         int accCount = 1000;
         Scanner input = new Scanner(System.in);
