@@ -1,32 +1,22 @@
 package practiceIO;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NIO2FilePersistence implements FilePersistence {
-
-    private final String currentDir = System.getProperty("user.dir");
-    private final String storedDir = "/managedFiles/NIO2/";
-    private final String fileName;
+public class NIO2FilePersistence extends FilePersistence {
 
     public NIO2FilePersistence(final String fileName) throws IOException {
-        this.fileName = fileName;
+        super(fileName, "/managedFiles/NIO2/");
         var path = Paths.get(currentDir + storedDir);
 
-        if(Files.exists(path)) {
-            clearFile();
-        }else{
+        if(!Files.exists(path)) {
             Files.createDirectory(path);
         }
+        clearFile();
     }
 
     @Override
@@ -39,34 +29,6 @@ public class NIO2FilePersistence implements FilePersistence {
             e.printStackTrace();
         }
         return data;
-    }
-
-    @Override
-    public boolean remove(String sentence) {
-        var contentList = toListString();
-
-        if(contentList.stream().noneMatch(c -> c.contains(sentence))) return false;
-
-        clearFile();
-        contentList.stream()
-                .filter(c -> !c.contains(sentence))
-                .forEach(this::write);
-
-        return true;
-    }
-
-    @Override
-    public String replace(String oldSentence, String newSentence) {
-        var contentList = toListString();
-
-        if(contentList.stream().noneMatch(c -> c.contains(oldSentence))) return "not found";
-
-        clearFile();
-        contentList.stream()
-                .map(c -> c.contains(oldSentence) ? newSentence : c)
-                .forEach(this::write);
-
-        return newSentence;
     }
 
     @Override
@@ -88,18 +50,5 @@ public class NIO2FilePersistence implements FilePersistence {
                 .filter(c -> c.contains(sentence))
                 .findFirst()
                 .orElse("not found");
-    }
-
-    private void clearFile() {
-        try (OutputStream outputStream = new FileOutputStream(currentDir + storedDir + fileName)) {
-
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    private List<String> toListString() {
-        var content = readAll();
-        return new ArrayList<>(Stream.of(content.split(System.lineSeparator())).toList());
     }
 }

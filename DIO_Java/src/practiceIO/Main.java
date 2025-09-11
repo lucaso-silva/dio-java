@@ -2,10 +2,13 @@ package practiceIO;
 
 import java.io.IOException;
 
-public class IOTester {
+public class Main {
 
     public static void main(String[] args) throws IOException {
-        FilePersistence persistence = new IOFilePersistence("user.csv");
+//        FilePersistence persistence = new IOFilePersistence("user.csv");
+//        FilePersistence persistence = new NIOFilePersistence("user.csv");
+        FilePersistence persistence = new NIO2FilePersistence("user.csv");
+
         System.out.println("----------------");
         System.out.println(persistence.write("Lucas;lucas@email.com;10/03/1986"));
         System.out.println("----------------");

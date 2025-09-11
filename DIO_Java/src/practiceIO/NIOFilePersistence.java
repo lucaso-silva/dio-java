@@ -2,18 +2,12 @@ package practiceIO;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-public class NIOFilePersistence implements FilePersistence {
-    private final String currentDir = System.getProperty("user.dir");
-    private final String storeDir = "/managedFiles/NIO/";
-    private final String fileName;
+public class NIOFilePersistence extends FilePersistence {
 
     public NIOFilePersistence(String fileName) throws IOException {
-        this.fileName = fileName;
-        var file = new File(currentDir + storeDir);
+        super(fileName, "/managedFiles/NIO/");
+        var file = new File(currentDir + storedDir);
 
         if(!file.exists() && !file.mkdirs()) throw new IOException("Error creating file");
 
@@ -23,7 +17,7 @@ public class NIOFilePersistence implements FilePersistence {
     @Override
     public String write(String data) {
         try(
-                var file = new RandomAccessFile(new File(currentDir + storeDir + fileName), "rw");
+                var file = new RandomAccessFile(new File(currentDir + storedDir + fileName), "rw")
                 ){
                     file.seek(file.length());
                     file.writeBytes(data);
@@ -35,39 +29,11 @@ public class NIOFilePersistence implements FilePersistence {
     }
 
     @Override
-    public boolean remove(String sentence) {
-        var contentList = toListString();
-
-        if(contentList.stream().noneMatch(c -> c.contains(sentence))) return false;
-        clearFile();
-
-        contentList.stream()
-                .filter(c -> !c.contains(sentence))
-                .forEach(this::write);
-
-        return true;
-    }
-
-    @Override
-    public String replace(String oldSentence, String newSentence) {
-        var contentList = toListString();
-
-        if(contentList.stream().noneMatch(c -> c.contains(oldSentence))) return "";
-        clearFile();
-
-        contentList.stream()
-                .map(c -> c.contains(oldSentence) ? newSentence : c)
-                .forEach(this::write);
-
-        return newSentence;
-    }
-
-    @Override
     public String readAll() {
         var content = new StringBuilder();
         try(
-                var file = new RandomAccessFile(new File(currentDir + storeDir + fileName),"r");
-                var channel = file.getChannel();
+                var file = new RandomAccessFile(new File(currentDir + storedDir + fileName),"r");
+                var channel = file.getChannel()
                 ){
                     var buffer = ByteBuffer.allocate(256);
                     var byteReader = channel.read(buffer);
@@ -93,7 +59,7 @@ public class NIOFilePersistence implements FilePersistence {
     public String findBy(String sentence) {
             var content = new StringBuilder();
         try(
-                var file = new RandomAccessFile(new File(currentDir + storeDir + fileName),"r");
+                var file = new RandomAccessFile(new File(currentDir + storedDir + fileName),"r");
                 var channel = file.getChannel()
         ){
             var buffer = ByteBuffer.allocate(256);
@@ -122,21 +88,6 @@ public class NIOFilePersistence implements FilePersistence {
         }catch (IOException e){
             e.printStackTrace();
         }
-
         return content.toString();
     }
-
-    private void clearFile() {
-        try (OutputStream outputStream = new FileOutputStream(currentDir + storeDir + fileName)) {
-
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    private List<String> toListString() {
-        var content = readAll();
-        return new ArrayList<>(Stream.of(content.split(System.lineSeparator())).toList());
-    }
-
 }
